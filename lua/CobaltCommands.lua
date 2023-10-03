@@ -48,24 +48,103 @@ local function kick(sender, name, reason, ...)
 	end
 end
 
-local function ban(sender, name, reason, ...)
+local function ban(sender, identifier, reason, ...)
 	reason = reason or "You've been banned from this server."
-	local player = players.getPlayerByName(name)
+	local player = players.getPlayerByName(identifier)
 	if player then
 		player:ban(reason)
 	else
-		players.database[name].banned = true
-		players.database[name].banReason = reason
+		players.database[identifier].banned = true
+		players.database[identifier].mpBanned = true
+		players.database[identifier].banReason = reason
 	end
-
-	CElog("Banned " .. name .. " for: " .. reason)
-	return "Banned " .. name .. " for: " .. reason
+	CElog("Banned " .. identifier .. " for: " .. reason)
+	return "Banned " .. identifier .. " for: " .. reason
 end
 
-local function unban(sender, name)
-	CElog("Unbanned " .. name)
-	players.database[name].banned = false
-	return "Unbanned " .. name
+local function ipban(sender, identifier, ...)
+	reason = "You've been IP banned from this server."
+	local player = players.getPlayerByName(identifier)
+	if player then
+		player:ban(reason, true)
+	else
+		for player in pairs(players.database) do
+			if identifier == players.database[player].bannedIP then
+				if players.database[player].bannedIP then
+					players.database[players.database[player].bannedIP].banned = true
+					players.database[players.database[player].bannedIP].ipBanned = true
+				end
+				players.database[player].banned = true
+				players.database[player].ipBanned = true
+				players.database[player].banReason = reason
+				local player = players.getPlayerByName(player)
+				if player then
+					player:ban(reason, true)
+				end
+			end
+			if identifier == player then
+				if players.database[player].bannedIP then
+					players.database[players.database[player].bannedIP].banned = true
+					players.database[players.database[player].bannedIP].ipBanned = true
+				end
+				players.database[player].banned = true
+				players.database[player].ipBanned = true
+				players.database[player].banReason = reason
+			end
+			if players.database[identifier].bannedIP then
+				if players.database[identifier].bannedIP == players.database[player].bannedIP then
+					players.database[players.database[player].bannedIP].banned = true
+					players.database[players.database[player].bannedIP].ipBanned = true
+					players.database[player].banned = true
+					players.database[player].ipBanned = true
+					players.database[player].banReason = reason
+				end
+			end
+		end
+		if players.database[identifier].bannedIP then
+			players.database[players.database[identifier].bannedIP].banned = true
+			players.database[players.database[identifier].bannedIP].ipBanned = true
+		end
+	end
+	players.database[identifier].banned = true
+	players.database[identifier].ipBanned = true
+	players.database[identifier].banReason = reason
+	CElog("IP Banned " .. identifier .. " for: " .. reason)
+	return "IP Banned " .. identifier .. " for: " .. reason
+end
+
+local function unban(sender, identifier)
+	for player in pairs(players.database) do
+		if players.database[identifier].bannedMP == player then
+			players.database[player].banned = false
+			players.database[player].mpBanned = false
+		end
+		if players.database[identifier].bannedMP == player.bannedMP then
+			players.database[player].banned = false
+			players.database[player].mpBanned = false
+		end
+	end
+	players.database[identifier].banned = false
+	players.database[identifier].mpBanned = false
+	CElog("Unbanned " .. identifier)
+	return "Unbanned " .. identifier
+end
+
+local function ipunban(sender, identifier)
+	for player in pairs(players.database) do
+		if players.database[player].bannedIP == identifier then
+			players.database[player].banned = false
+			players.database[player].ipBanned = false
+		end
+		if players.database[identifier].bannedIP == players.database[player].bannedIP then
+			players.database[player].banned = false
+			players.database[player].ipBanned = false
+		end
+	end
+	players.database[identifier].banned = false
+	players.database[identifier].ipBanned = false
+	CElog("IP Unbanned " .. identifier)
+	return "IP Unbanned " .. identifier
 end
 
 local function mute(sender, name, reason, ...)
@@ -424,7 +503,9 @@ M.getArgumentString = getArgumentString
 ----COMMANDS----
 M.kick = kick
 M.ban = ban
+M.ipban = ipban
 M.unban = unban --TODO
+M.ipunban = ipunban
 M.mute = mute
 M.unmute = unmute
 M.status = status
