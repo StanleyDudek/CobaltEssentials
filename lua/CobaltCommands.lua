@@ -62,8 +62,8 @@ local function ban(sender, identifier, reason, ...)
 	return "Banned " .. identifier .. " for: " .. reason
 end
 
-local function ipban(sender, identifier, ...)
-	reason = "You've been IP banned from this server."
+local function ipban(sender, identifier, reason, ...)
+	reason = reason or "You've been IP banned from this server."
 	local player = players.getPlayerByName(identifier)
 	if player then
 		player:ban(reason, true)
