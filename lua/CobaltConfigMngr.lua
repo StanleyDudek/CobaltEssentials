@@ -118,7 +118,7 @@ local defaultCommands =
 	kick =			{originModule = "CC",	level = 5,	sourceLimited = 0,	arguments = {"player","*reason"},		description = "Kick a player from the session"},
 	setcfg =		{originModule = "CC",	level = 5,	sourceLimited = 0,	arguments = {"option","value"},			description = "Set a vanilla beamMP server config option"},
 	ban =			{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"identifier","*reason"},	description = "Ban a player from the server, takes name or beammp"},
-	ipban =			{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"identifier"},				description = "Ban a player and their IP from the server, takes name or IP"},
+	ipban =			{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"identifier","*reason"},	description = "Ban a player and their IP from the server, takes name or IP"},
 	unban =			{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"identifier"},				description = "Unban a player from the server, takes name or beammp"},
 	ipunban =		{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"identifier"},				description = "Unban an IP from the server, takes name or IP"},
 	setperm =		{originModule = "CC",	level = 10,	sourceLimited = 0,	arguments = {"player","value"},			description = "Set a player's permission level"},
