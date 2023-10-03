@@ -77,10 +77,6 @@ local function ipban(sender, identifier, ...)
 				players.database[player].banned = true
 				players.database[player].ipBanned = true
 				players.database[player].banReason = reason
-				local player = players.getPlayerByName(player)
-				if player then
-					player:ban(reason, true)
-				end
 			end
 			if identifier == player then
 				if players.database[player].bannedIP then
@@ -99,6 +95,11 @@ local function ipban(sender, identifier, ...)
 					players.database[player].ipBanned = true
 					players.database[player].banReason = reason
 				end
+			end
+		end
+		for playerID, player in pairs(players) do
+			if identifier == player.ip then
+				player:ban(reason, true)
 			end
 		end
 		if players.database[identifier].bannedIP then
@@ -132,11 +133,11 @@ end
 
 local function ipunban(sender, identifier)
 	for player in pairs(players.database) do
-		if players.database[player].bannedIP == identifier then
+		if players.database[identifier].bannedIP == player then
 			players.database[player].banned = false
 			players.database[player].ipBanned = false
 		end
-		if players.database[identifier].bannedIP == players.database[player].bannedIP then
+		if players.database[identifier].bannedIP == player.bannedIP then
 			players.database[player].banned = false
 			players.database[player].ipBanned = false
 		end
