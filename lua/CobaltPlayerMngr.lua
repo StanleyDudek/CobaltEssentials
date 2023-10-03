@@ -240,6 +240,45 @@ local function new(name, role, isGuest, identifiers)
 	end
 
 
+	if players.database[identifiers.ip].ipBanned then
+		newPlayer.permissions.banned = true
+		newPlayer.permissions.ipBanned = true
+		newPlayer.permissions.bannedIP = identifiers.ip
+		newPlayer.permissions.bannedMP = identifiers.beammp
+		newPlayer.permissions.banReason = "You are IP banned from this server!"
+	end
+
+
+	if players.database[identifiers.beammp].mpBanned then
+		newPlayer.permissions.banned = true
+		newPlayer.permissions.bannedIP = identifiers.ip
+		newPlayer.permissions.bannedMP = identifiers.beammp
+		newPlayer.permissions.banReason = "You are banned from this server!"
+	end
+
+
+	if newPlayer.permissions.ipBanned == true then
+		if newPlayer.permissions.bannedIP == nil then
+			newPlayer.permissions.bannedIP = identifiers.ip
+			players.database[identifiers.ip].banned = true
+			players.database[identifiers.ip].ipBanned = true
+		end
+		canJoin = false
+		reason = newPlayer.permissions.banReason or "You are IP banned from this server!"
+	end
+
+
+	if newPlayer.permissions.mpBanned == true then
+		if newPlayer.permissions.bannedMP == nil then
+			newPlayer.permissions.bannedMP = identifiers.beammp
+			players.database[identifiers.beammp].banned = true
+			players.database[identifiers.beammp].mpBanned = true
+		end
+		canJoin = false
+		reason = newPlayer.permissions.banReason or "You are banned from this server!"
+	end
+
+
 	if newPlayer.permissions.banned == true then
 		canJoin = false
 		reason = newPlayer.permissions.banReason or "You are banned from this server!"
@@ -527,11 +566,24 @@ local function kick(player, reason)
 	MP.DropPlayer(player.playerID, reason)
 end
 
-local function ban(player, reason)
+local function ban(player, reason, ip)
 	--state = (state == true and 1) or (state == true or 0)
 	player.permissions.banned = true
 	player.permissions.banReason = reason
-
+	if not player.guest then
+		player.permissions.mpBanned = true
+		player.permissions.bannedMP = player.beammp
+		players.database[player.beammp].banned = true
+		players.database[player.beammp].mpBanned = true
+		players.database[player.beammp].banReason = reason or "You are banned from this server!"
+	end
+	if ip then
+		players.database[player.ip].banned = true
+		players.database[player.ip].ipBanned = true
+		players.database[player.ip].banReason = reason or "You are IP banned from this server!"
+		player.permissions.ipBanned = true
+		player.permissions.bannedIP = player.ip
+	end
 	MP.DropPlayer(player.playerID, reason or "You are banned from this server!")
 end
 
